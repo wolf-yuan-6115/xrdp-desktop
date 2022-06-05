@@ -5,6 +5,8 @@ ENV container docker
 RUN sed -i 's/# deb/deb/g' /etc/apt/sources.list
 
 ARG DEBIAN_FRONTEND=noninteractive
+ARG USERNAME="user"
+ARG PASSWORD="pwd"
 
 RUN apt-get update && \
   apt-get install -y ubuntu-minimal ubuntu-standard systemd systemd-sysv && \
@@ -29,7 +31,12 @@ RUN apt-get update && \
   xrdp && \
   mkdir -p /var/run/dbus && \
   chown messagebus:messagebus /var/run/dbus && \
-  dbus-uuidgen --ensure
+  dbus-uuidgen --ensure && \
+  groupadd --gid 1000 "$USERNAME" && \
+  D_PASSWORD=$(openssl passwd -1 -salt ADUODeAy $PASSWORD)
+  useradd --uid 1000 --gid 1000 --groups video -ms /bin/bash $USERNAME && \
+  echo "$USERNAME:$D_PASSWORD" | chpasswd -e && \
+  echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/default
 
 ENV DISPLAY=:1
 ENV KDE_FULL_SESSION=true
