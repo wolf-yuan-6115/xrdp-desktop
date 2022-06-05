@@ -22,7 +22,7 @@ RUN apt-get update ; \
   # Prevent system booting into Graphical interface
   systemctl set-default multi-user.target ; \
   # installing xrdp & KDE
-  apt install -y kde-full xrdp
+  apt install -y kde-plasma-desktop xrdp
 
 VOLUME [ "/sys/fs/cgroup" ]
 
