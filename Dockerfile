@@ -7,7 +7,7 @@ RUN sed -i 's/# deb/deb/g' /etc/apt/sources.list
 RUN apt-get update ; \
   apt-get install -y systemd systemd-sysv ; \
   apt-get clean ; \
-  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ; \
+  rm -rf /tmp/* /var/tmp/* ; \
   cd /lib/systemd/system/sysinit.target.wants/ ; \
   ls | grep -v systemd-tmpfiles-setup | xargs rm -f $1 ; \
   rm -f /lib/systemd/system/multi-user.target.wants/* ; \
