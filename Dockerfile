@@ -31,7 +31,7 @@ RUN apt-get update && \
   chown messagebus:messagebus /var/run/dbus && \
   dbus-uuidgen --ensure && \
   groupadd --gid 1000 "$USERNAME" && \
-  D_PASSWORD=$(openssl passwd -1 -salt ADUODeAy $PASSWORD)
+  D_PASSWORD=$(openssl passwd -1 -salt ADUODeAy $PASSWORD) && \
   useradd --uid 1000 --gid 1000 --groups video -ms /bin/bash $USERNAME && \
   echo "$USERNAME:$D_PASSWORD" | chpasswd -e && \
   echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/default
