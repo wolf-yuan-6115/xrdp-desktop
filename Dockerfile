@@ -7,7 +7,7 @@ RUN sed -i 's/# deb/deb/g' /etc/apt/sources.list
 ARG DEBIAN_FRONTEND=noninteractive
 
 RUN apt-get update ; \
-  apt-get install -y systemd systemd-sysv ; \
+  apt-get install -y ubuntu-minimal ubuntu-standard systemd systemd-sysv ; \
   apt-get clean ; \
   rm -rf /tmp/* /var/tmp/* ; \
   cd /lib/systemd/system/sysinit.target.wants/ ; \
@@ -25,15 +25,16 @@ RUN apt-get update ; \
   systemctl set-default multi-user.target ; \
   # installing xrdp & KDE
   apt install --no-install-recommends -y \
-  dolphin \
-  firefox \
-  kate \
-  kmix \
-  konsole \
-  kubuntu-desktop \
+  kde-plasma-desktop \
+  xrdp-pulseaudio-installer \
   xrdp ; \
-  echo "startkde" > ~/.Xclients ; \
-  chmod +x ~/.Xclients
+  /sbin/setcap -r /usr/lib/*/libexec/kf5/start_kdeinit
+
+ENV DISPLAY=:1
+ENV KDE_FULL_SESSION=true
+ENV SHELL=/bin/bash
+
+ENV XDG_RUNTIME_DIR=/run/neon
 
 VOLUME [ "/sys/fs/cgroup" ]
 
