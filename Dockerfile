@@ -23,8 +23,6 @@ RUN apt-get update && \
   rm -f /lib/systemd/system/anaconda.target.wants/* && \
   rm -f /lib/systemd/system/plymouth* && \
   rm -f /lib/systemd/system/systemd-update-utmp* && \
-  # Prevent system booting into Graphical interface
-  systemctl set-default multi-user.target && \
   # installing xrdp & KDE
   apt install --no-install-recommends -y \
   kde-plasma-desktop \
