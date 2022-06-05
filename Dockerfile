@@ -4,6 +4,8 @@ ENV container docker
 
 RUN sed -i 's/# deb/deb/g' /etc/apt/sources.list
 
+ARG DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update ; \
   apt-get install -y systemd systemd-sysv ; \
   apt-get clean ; \
@@ -22,7 +24,14 @@ RUN apt-get update ; \
   # Prevent system booting into Graphical interface
   systemctl set-default multi-user.target ; \
   # installing xrdp & KDE
-  apt install -y kde-plasma-desktop xrdp
+  apt install --no-install-recommends -y \
+  dolphin \
+  firefox \
+  kate \
+  kmix \
+  konsole \
+  kubuntu-desktop \
+  xrdp
 
 VOLUME [ "/sys/fs/cgroup" ]
 
