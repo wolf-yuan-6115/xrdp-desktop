@@ -31,7 +31,9 @@ RUN apt-get update ; \
   kmix \
   konsole \
   kubuntu-desktop \
-  xrdp
+  xrdp ; \
+  echo "startkde" > ~/.Xclients ; \
+  chmod +x ~/.Xclients
 
 VOLUME [ "/sys/fs/cgroup" ]
 
