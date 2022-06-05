@@ -26,7 +26,6 @@ RUN apt-get update ; \
   # installing xrdp & KDE
   apt install --no-install-recommends -y \
   kde-plasma-desktop \
-  xrdp-pulseaudio-installer \
   xrdp ; \
   /sbin/setcap -r /usr/lib/*/libexec/kf5/start_kdeinit
 
