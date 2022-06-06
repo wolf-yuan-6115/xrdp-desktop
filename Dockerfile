@@ -16,8 +16,10 @@ RUN \
   pulseaudio && \
   apt build-dep -y \
   pulseaudio \
-  xrdp
+  xrdp \
+  bash
 
+SHELL [ "bash", "-c" ]
 RUN \
   echo "== Build pulseaudio ==" && \
   mkdir -p /buildout/var/lib/xrdp-pulseaudio-installer && \
@@ -50,7 +52,7 @@ RUN \
 
 FROM docker:20.10.16 AS docker
 
-FROM ubuntu:20.04
+FROM ubuntu:22.04
 
 ENV container docker
 
