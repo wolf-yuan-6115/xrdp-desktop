@@ -64,7 +64,7 @@ COPY --from=builder /buildout/ /
 COPY --from=docker /usr/local/bin/docker /usr/local/bin/
 
 RUN apt-get update && \
-  apt-get install -y supervisor ubuntu-standard ubuntu-minimal && \
+  apt-get install -y supervisor ubuntu-standard ubuntu-minimal gnupg && \
   mkdir -p /var/log/supervisor && \
   # installing xrdp & KDE
   echo " == Install packages ==" && \
@@ -102,7 +102,12 @@ RUN apt-get update && \
   rm /xrdp.deb 
 
 # Install desktop & configure User
-RUN apt install --no-install-recommends -y kde-standard && \
+RUN apt install --no-install-recommends -y dolphin \
+  firefox \
+  kate \
+  kmix \
+  konsole \
+  kubuntu-desktop && \
   mkdir -p /var/run/dbus && \
   chown messagebus:messagebus /var/run/dbus && \
   dbus-uuidgen --ensure && \
