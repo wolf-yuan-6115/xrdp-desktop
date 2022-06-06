@@ -52,13 +52,74 @@ FROM docker:20.10.16 AS docker
 
 FROM ubuntu:20.04
 
-ENV container docker
-
 RUN sed -i 's/# deb/deb/g' /etc/apt/sources.list
-
 ARG DEBIAN_FRONTEND=noninteractive
 ARG USERNAME="user"
 ARG PASSWORD="pwd"
+
+# === Setup docker image ===
+# Copied from LinuxServer source code
+RUN \
+  echo "**** Ripped from Ubuntu Docker Logic ****" && \
+  set -xe && \
+  echo '#!/bin/sh' \
+  > /usr/sbin/policy-rc.d && \
+  echo 'exit 101' \
+  >> /usr/sbin/policy-rc.d && \
+  chmod +x \
+  /usr/sbin/policy-rc.d && \
+  dpkg-divert --local --rename --add /sbin/initctl && \
+  cp -a \
+  /usr/sbin/policy-rc.d \
+  /sbin/initctl && \
+  sed -i \
+  's/^exit.*/exit 0/' \
+  /sbin/initctl && \
+  echo 'force-unsafe-io' \
+  > /etc/dpkg/dpkg.cfg.d/docker-apt-speedup && \
+  echo 'DPkg::Post-Invoke { "rm -f /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin || true"; };' \
+  > /etc/apt/apt.conf.d/docker-clean && \
+  echo 'APT::Update::Post-Invoke { "rm -f /var/cache/apt/archives/*.deb /var/cache/apt/archives/partial/*.deb /var/cache/apt/*.bin || true"; };' \
+  >> /etc/apt/apt.conf.d/docker-clean && \
+  echo 'Dir::Cache::pkgcache ""; Dir::Cache::srcpkgcache "";' \
+  >> /etc/apt/apt.conf.d/docker-clean && \
+  echo 'Acquire::Languages "none";' \
+  > /etc/apt/apt.conf.d/docker-no-languages && \
+  echo 'Acquire::GzipIndexes "true"; Acquire::CompressionTypes::Order:: "gz";' \
+  > /etc/apt/apt.conf.d/docker-gzip-indexes && \
+  echo 'Apt::AutoRemove::SuggestsImportant "false";' \
+  > /etc/apt/apt.conf.d/docker-autoremove-suggests && \
+  mkdir -p /run/systemd && \
+  echo 'docker' \
+  > /run/systemd/container && \
+  echo "**** install apt-utils and locales ****" && \
+  apt-get update && \
+  apt-get install -y \
+  apt-utils \
+  locales && \
+  echo "**** install packages ****" && \
+  apt-get install -y \
+  curl \
+  patch \
+  tzdata && \
+  echo "**** generate locale ****" && \
+  locale-gen en_US.UTF-8 && \
+  echo "**** create user and make our folders ****" && \
+  useradd -u 911 -U -d /config -s /bin/false ${USERNAME} && \
+  usermod -G users ${USERNAME} && \
+  mkdir -p \
+  /app \
+  /config \
+  /defaults && \
+  echo "**** cleanup ****" && \
+  apt-get autoremove && \
+  apt-get clean && \
+  rm -rf \
+  /tmp/* \
+  /var/lib/apt/lists/* \
+  /var/tmp/*
+
+ENV container docker
 
 COPY --from=builder /buildout/ /
 COPY --from=docker /usr/local/bin/docker /usr/local/bin/
@@ -99,7 +160,9 @@ RUN apt-get update && \
   xutils \
   zlib1g && \
   dpkg -i /xrdp.deb && \
-  rm /xrdp.deb 
+  rm /xrdp.deb && \
+  echo "$USERNAME:$D_PASSWORD" | chpasswd -e && \
+  echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/default
 
 # Install desktop & configure User
 RUN apt install --no-install-recommends -y dolphin \
@@ -110,12 +173,7 @@ RUN apt install --no-install-recommends -y dolphin \
   kubuntu-desktop && \
   mkdir -p /var/run/dbus && \
   chown messagebus:messagebus /var/run/dbus && \
-  dbus-uuidgen --ensure && \
-  groupadd --gid 1000 "$USERNAME" && \
-  D_PASSWORD=$(openssl passwd -1 -salt ADUODeAy $PASSWORD) && \
-  useradd --uid 1000 --gid 1000 --groups video -ms /bin/bash $USERNAME && \
-  echo "$USERNAME:$D_PASSWORD" | chpasswd -e && \
-  echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/default
+  dbus-uuidgen --ensure
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
