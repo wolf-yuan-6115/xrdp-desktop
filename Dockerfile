@@ -1,4 +1,4 @@
-FROM ubuntu:21.10 AS builder
+FROM ubuntu:22.04 AS builder
 
 ARG XRDP_PULSE_VERSION=v0.4
 ARG DEBIAN_FRONTEND=noninteractive
@@ -53,7 +53,7 @@ RUN \
 
 FROM docker:20.10.16 AS docker
 
-FROM ubuntu:21.10
+FROM ubuntu:22.04
 
 ENV container docker
 
@@ -67,8 +67,7 @@ COPY --from=builder /buildout/ /
 COPY --from=docker /usr/local/bin/docker /usr/local/bin/
 
 RUN apt-get update && \
-  apt-get install -y supervisor ubuntu-standard ubuntu-minimal gnupg && \
-  mkdir -p /var/log/supervisor && \
+  apt-get install -y ubuntu-standard ubuntu-minimal gnupg && \
   # installing xrdp & KDE
   echo " == Install packages ==" && \
   ldconfig && \
@@ -119,7 +118,7 @@ RUN apt-get install -y systemd systemd-sysv && \
   rm -f /lib/systemd/system/systemd-update-utmp* && \
   cd ~
 # Install desktop & configure User
-RUN apt install --no-install-recommends -y kde-standard && \
+RUN apt install --no-install-recommends -y kde-plasma-desktop && \
   mkdir -p /var/run/dbus && \
   chown messagebus:messagebus /var/run/dbus && \
   dbus-uuidgen --ensure && \
@@ -130,7 +129,6 @@ RUN apt install --no-install-recommends -y kde-standard && \
   echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/default && \
   systemctl enable xrdp
 
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
 ENV KDE_FULL_SESSION=true
 ENV SHELL=/bin/bash
