@@ -136,4 +136,6 @@ ENV XDG_RUNTIME_DIR=/run/neon
 
 VOLUME [ "/sys/fs/cgroup" ]
 
+STOPSIGNAL SIGRTMIN+3
+
 CMD ["/lib/systemd/systemd"]
