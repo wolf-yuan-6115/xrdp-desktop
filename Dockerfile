@@ -128,10 +128,11 @@ RUN groupadd --gid 1000 "$USERNAME" && \
   echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/default && \
   groupadd docker && \
   usermod -aG docker ${USERNAME} && \
-  systemctl enable xrdp
+  systemctl enable xrdp && \
+  sed  '/exit 1/i pulseaudio --start &' /etc/xrdp/startwm.sh > /etc/xrdp/startwm.sh
 
 ENV KDE_FULL_SESSION=true
-ENV SHELL=/bin/bash
+ENV SHELL=/bin/bashte
 ENV XDG_RUNTIME_DIR=/run/neon
 
 VOLUME [ "/sys/fs/cgroup" ]
