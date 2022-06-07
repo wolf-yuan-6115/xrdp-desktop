@@ -1,4 +1,4 @@
-FROM ubuntu:20.04 AS builder
+FROM ubuntu:21.10 AS builder
 
 ARG XRDP_PULSE_VERSION=v0.4
 ARG DEBIAN_FRONTEND=noninteractive
@@ -16,10 +16,20 @@ RUN \
   pulseaudio && \
   apt build-dep -y \
   pulseaudio \
-  xrdp \
-  bash
+  xrdp
 
 SHELL [ "bash", "-c" ]
+
+RUN \
+  echo "== Build XRDP ==" && \
+  cd /tmp && \
+  apt-get source xrdp && \
+  cd xrdp-* && \
+  sed -i 's/--enable-fuse/--disable-fuse/g' debian/rules && \
+  debuild -b -uc -us && \
+  mkdir /buildout && \
+  cp -ax ../xrdp_*.deb /buildout/xrdp.deb
+
 RUN \
   echo "== Build pulseaudio ==" && \
   mkdir -p /buildout/var/lib/xrdp-pulseaudio-installer && \
@@ -31,28 +41,19 @@ RUN \
   suite=${3#*/} && \
   dget -u "$mirror/pool/$suite/p/pulseaudio/pulseaudio_$pulseaudio_version.dsc" && \
   cd "pulseaudio-$pulseaudio_upstream_version" && \
-  ./configure && \
+  meson --prefix="$tmp/pulseaudio-$pulseaudio_upstream_version" build && \
+  ninja -C build install && \
   cd - && \
   git clone https://github.com/neutrinolabs/pulseaudio-module-xrdp.git && \
   cd pulseaudio-module-xrdp && \
-  git checkout ${XRDP_PULSE_VERSION} && \
   ./bootstrap && \
   ./configure PULSE_DIR="$tmp/pulseaudio-$pulseaudio_upstream_version" && \
   make && \
   install -t "/buildout/var/lib/xrdp-pulseaudio-installer" -D -m 644 src/.libs/*.so
 
-RUN \
-  echo "== Build XRDP ==" && \
-  cd /tmp && \
-  apt-get source xrdp && \
-  cd xrdp-* && \
-  sed -i 's/--enable-fuse/--disable-fuse/g' debian/rules && \
-  debuild -b -uc -us && \
-  cp -ax ../xrdp_*.deb /buildout/xrdp.deb
-
 FROM docker:20.10.16 AS docker
 
-FROM ubuntu:22.04
+FROM ubuntu:21.10
 
 ENV container docker
 
