@@ -119,12 +119,7 @@ RUN apt-get install -y systemd systemd-sysv && \
   rm -f /lib/systemd/system/systemd-update-utmp* && \
   cd ~
 # Install desktop & configure User
-RUN apt install --no-install-recommends -y dolphin \
-  firefox \
-  kate \
-  kmix \
-  konsole \
-  kubuntu-desktop && \
+RUN apt install --no-install-recommends -y kde-standard && \
   mkdir -p /var/run/dbus && \
   chown messagebus:messagebus /var/run/dbus && \
   dbus-uuidgen --ensure && \
