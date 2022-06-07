@@ -128,7 +128,8 @@ RUN groupadd --gid 1000 "$USERNAME" && \
   echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/default && \
   groupadd docker && \
   usermod -aG docker ${USERNAME} && \
-  systemctl enable xrdp
+  systemctl enable xrdp && \
+  echo "pulseaudio --start" > /etc/X11/xinit/xinitrc
 
 ENV KDE_FULL_SESSION=true
 ENV SHELL=/bin/bash
