@@ -32,6 +32,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          platforms: linux/amd64,linux/arm64/v8
+          platforms: linux/amd64
           tags: ${{ secrets.DOCKER_USERNAME }}/xrdp-desktop:${{ env.GITHUB_SHA_SHORT }},${{ secrets.DOCKER_USERNAME }}/xrdp-desktop:latest
           push: true
