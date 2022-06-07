@@ -127,7 +127,8 @@ RUN apt install --no-install-recommends -y kde-standard && \
   D_PASSWORD=$(openssl passwd -1 -salt ADUODeAy $PASSWORD) && \
   useradd --uid 1000 --gid 1000 --groups video -ms /bin/bash $USERNAME && \
   echo "$USERNAME:$D_PASSWORD" | chpasswd -e && \
-  echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/default
+  echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/default && \
+  systemctl enable xrdp
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
