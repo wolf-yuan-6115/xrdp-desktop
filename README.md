@@ -4,7 +4,7 @@ xRDP desktop with systemctl support.
 
 # Building
 
-````sh
+```sh
 docker build -t xrdp-desktop .
 ```
 
@@ -15,4 +15,4 @@ docker run -it --rm \
   --privileged \ # Required for systemd
   --volume /sys/fs/cgroup:/sys/fs/cgroup:ro \ # Required for systemd
   --name xrdp-desktop -p 3389:3389 xrdp-desktop
-````
+```
