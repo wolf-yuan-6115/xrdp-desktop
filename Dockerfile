@@ -120,6 +120,14 @@ RUN apt-get install -y systemd systemd-sysv && \
 # Install desktop
 RUN apt install -y kde-full
 
+# Setup firefox
+RUN add-apt-repository ppa:mozillateam/ppa && \
+  echo 'Package: *' > /etc/apt/preferences.d/firefox && \
+  echo 'Pin: release o=Debian,a=stable' >> /etc/apt/preferences.d/firefox && \
+  echo 'Pin-Priority: -1' >> /etc/apt/preferences.d/firefox && \
+  apt update && \
+  apt install -y firefox
+
 # Setup container
 RUN groupadd --gid 1000 "$USERNAME" && \
   D_PASSWORD=$(openssl passwd -1 -salt ADUODeAy $PASSWORD) && \
